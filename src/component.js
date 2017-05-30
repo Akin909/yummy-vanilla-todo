@@ -22,8 +22,8 @@ class Component {
   }
 
   renderList(array, domNode) {
+    if (array.length < 1) return;
     array.forEach(item => {
-      if (item.length < 1) return;
       const li = this.createElement('li', item);
       domNode.innerHTML += li;
     });
@@ -59,10 +59,12 @@ class Component {
     });
   }
 
-  render() {
-    console.log(this.state);
-    if (!this.findElement('root')) {
+  render(action) {
+    if (!this.findElement('input')) {
       this.createComponent(this.root, 'input');
+    }
+    if (action) {
+      this.attachListeners(action);
     }
     return Object.values(this.state).map(stateValue => {
       switch (typeof stateValue) {
