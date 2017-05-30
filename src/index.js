@@ -18,9 +18,6 @@ class Todo extends Component {
 }
 
 const newTodo = new Todo();
-const form = () => newTodo.createComponent(newTodo.root, 'form');
-const button = () =>
-  newTodo.createComponent(newTodo.findElement('form'), 'input', 'submit');
 
 //==============================================
 //RENDER

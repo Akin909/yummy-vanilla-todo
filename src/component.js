@@ -99,7 +99,6 @@ class Component {
 
   render(action, component, fns) {
     if (fns) {
-      //fns.forEach(fn => fn());
       fns();
     }
     if (action) {
