@@ -26,13 +26,24 @@ class Component {
 
   renderList(array, domNode) {
     if (array.length < 1) return;
+    const ul = this.createElement('ul');
+    domNode.innerHTML += ul;
+    const ulNode = this.findElement('ul');
+    this.empty(ulNode);
     array.forEach(item => {
       const li = this.createElement('li', item);
-      domNode.innerHTML += li;
+      ulNode.innerHTML += li;
     });
   }
 
+  empty(domNode) {
+    while (domNode.firstChild) {
+      domNode.removeChild(domNode.firstChild);
+    }
+  }
+
   createElement(element, item, type) {
+    console.log('creating');
     switch (element) {
       case 'form':
         return `<${element} id=${element}>
@@ -88,27 +99,13 @@ class Component {
 
   render(action, component, fns) {
     if (fns) {
-      fns.forEach(fn => fn());
-    }
-    if (component) {
-      this.createComponent(this.root, component);
+      //fns.forEach(fn => fn());
+      fns();
     }
     if (action) {
       this.attachListeners(action);
     }
-    return Object.values(this.state).map(stateValue => {
-      switch (typeof stateValue) {
-        case number:
-        case string:
-          return (root.textContent = stateValue);
-        case object:
-          return Array.isArray(stateValue)
-            ? this.renderList(stateValue, root)
-            : this.renderList(Object.values(stateValue, root));
-        default:
-          return (root.TextContent = 'State is not a Javascript Type');
-      }
-    });
+    this.attachListeners();
   }
 }
 
