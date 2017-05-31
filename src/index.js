@@ -11,19 +11,30 @@ class Todo extends Component {
     };
   }
   addTodo(event) {
-    const todo = event.target.value;
+    const todo = this.findElement('input').value;
     this.setState(this.state, { prop: 'todo', value: todo });
     this.renderList(this.state.todo, this.root);
   }
 }
 
 const newTodo = new Todo();
+const todo = new CustomEvent('todo', {
+  detail: {
+    todo: 'stuff'
+  }
+});
 
 //==============================================
 //RENDER
 //==============================================
-//newTodo.render(newTodo.addTodo.bind(newTodo), null, [form, button]);
-newTodo.render(newTodo.addTodo.bind(newTodo), null, () => {
-  newTodo.createComponent(newTodo.root, 'form');
-  newTodo.createComponent(newTodo.findElement('form'), 'input', 'submit');
+const action = newTodo.addTodo.bind(newTodo);
+newTodo.render(action, null, () => {
+  newTodo.createComponent(newTodo.root, 'form', null, null, action);
+  newTodo.createComponent(
+    newTodo.findElement('form'),
+    'input',
+    'submit',
+    'js-submit',
+    action
+  );
 });

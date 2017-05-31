@@ -10,7 +10,6 @@ class Component {
   constructor(props) {
     this.root = document.getElementById('root');
     this.subscribers = [];
-    this.mounted = false;
     this.state = {};
   }
 
@@ -42,59 +41,61 @@ class Component {
     }
   }
 
-  createElement(element, item, type) {
-    console.log('creating');
+  createElement(element, item, type, uniqueId) {
     switch (element) {
       case 'form':
         return `<${element} id=${element}>
                     <input id="input" type="text" />
                 </${element}>`;
       default:
-        return `<${element} id="${element}" type="${type}">${item || ''}</${element}>`;
+        return `
+        <${element} id="${uniqueId || element}" type="${type}">
+            ${item || ''}
+          </${element}>`;
     }
   }
 
-  createComponent(domNode, component, type) {
-    const element = this.createElement(component, null, type);
+  createComponent(domNode, component, type, uniqueId, action) {
+    const element = this.createElement(component, null, type, uniqueId);
     domNode.innerHTML += element;
-    this.subscribe(component);
-    this.attachListeners();
+    const subscriber = this.subscribe(component);
+    console.log('action', action);
+    this.attachListeners(subscriber, action);
   }
 
   subscribe(element) {
     const node = this.findElement(element);
     this.subscribers.push(node);
+    return node;
   }
 
   findElement(element) {
     return document.getElementById(element);
   }
 
-  attachListeners(action) {
-    this.subscribers.forEach(subscriber => {
-      let changeEvent;
-      switch (subscriber.id) {
-        case 'input':
-          changeEvent = 'change';
-          break;
+  attachListeners(component, action) {
+    let changeEvent;
+    if (component) {
+      switch (component.id) {
         case 'form':
           changeEvent = 'submit';
           break;
-        case 'button':
-          changeEvent = 'click';
+        case 'js-submit':
+          changeEvent = 'submit';
           break;
         default:
-          changeEvent = 'click';
+        //changeEvent = 'click';
       }
-      subscriber.addEventListener(`${changeEvent}`, e => {
-        console.log('a thing happened', action);
+      component.addEventListener(`${changeEvent}`, e => {
+        console.log('responding', component);
+        console.log('action', action);
         e.preventDefault();
         if (action) {
           action(event);
         }
         this.render(action);
       });
-    });
+    }
   }
 
   render(action, component, fns) {
@@ -102,9 +103,8 @@ class Component {
       fns();
     }
     if (action) {
-      this.attachListeners(action);
+      this.attachListeners(component, action);
     }
-    this.attachListeners();
   }
 }
 
