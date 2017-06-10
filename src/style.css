@@ -1,0 +1,18 @@
+body, html {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    width: 100%;
+    height: 100%;
+}
+
+* {
+    box-sizing: inherit
+  }
+
+.test-layout {
+    border: 1px palevioletred solid;
+}
+
+.outerContainer {
+}

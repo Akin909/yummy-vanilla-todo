@@ -1,40 +1,36 @@
-import Component from './component';
-//=============================================
-// TODO APP
-//=============================================
+const getRoot = () => document.getElementById('root');
 
-class Todo extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      todo: []
-    };
+const createDomElement = (type, className, innerValue = '', id = '') => {
+  switch (type) {
+    case 'ul':
+    case 'div':
+      return !className
+        ? (
+            className,
+            innerValue = '',
+            id = ''
+          ) => `<${type} class="${className}" id="${id}">${innerValue}</${type}>`
+        : `<${type} class="${className}" id="${id}">${innerValue}</${type}>`;
+    case 'a':
+      return `<${type} class="${className}" id="${id}">${innerValue}</${type}>`;
+    case 'form':
+      return `<form id="${id}">${innerValue}</form>`;
+    case 'input':
+      return inputType => `<input type=${inputType} id="${id}"/>`;
+    case 'button':
+      return `<input type="button" id="${id}"/>`;
+    case 'textInput':
+      return `<input type="text" id="${id}"/>`;
+    default:
+      return;
   }
-  addTodo(event) {
-    const todo = this.findElement('input').value;
-    this.setState(this.state, { prop: 'todo', value: todo });
-    this.renderList(this.state.todo, this.root);
-  }
-}
+};
 
-const newTodo = new Todo();
-const todo = new CustomEvent('todo', {
-  detail: {
-    todo: 'stuff'
-  }
-});
-
-//==============================================
-//RENDER
-//==============================================
-const action = newTodo.addTodo.bind(newTodo);
-newTodo.render(action, null, () => {
-  newTodo.createComponent(newTodo.root, 'form', null, null, action);
-  newTodo.createComponent(
-    newTodo.findElement('form'),
-    'input',
-    'submit',
-    'js-submit',
-    action
-  );
-});
+(() => {
+  const root = getRoot();
+  const createDiv = createDomElement('div');
+  const createList = createDomElement('ul');
+  const TodoContainer = createDiv('todo-container', createList('todo-list'));
+  console.log('TodoContainer', TodoContainer);
+  root.innerHTML += createDomElement('div', 'test-layout', TodoContainer);
+})();
