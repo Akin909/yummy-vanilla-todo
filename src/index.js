@@ -1,36 +1,71 @@
-const getRoot = () => document.getElementById('root');
+const doc = document;
+const getRoot = () => doc.getElementById('root');
 
-const createDomElement = (type, className, innerValue = '', id = '') => {
-  switch (type) {
-    case 'ul':
-    case 'div':
-      return !className
-        ? (
-            className,
-            innerValue = '',
-            id = ''
-          ) => `<${type} class="${className}" id="${id}">${innerValue}</${type}>`
-        : `<${type} class="${className}" id="${id}">${innerValue}</${type}>`;
-    case 'a':
-      return `<${type} class="${className}" id="${id}">${innerValue}</${type}>`;
-    case 'form':
-      return `<form id="${id}">${innerValue}</form>`;
-    case 'input':
-      return inputType => `<input type=${inputType} id="${id}"/>`;
-    case 'button':
-      return `<input type="button" id="${id}"/>`;
-    case 'textInput':
-      return `<input type="text" id="${id}"/>`;
-    default:
-      return;
+function curry(fn) {
+  return function() {
+    if (fn.length > arguments.length) {
+      const slice = Array.prototype.slice;
+      const args = slice.apply(arguments);
+      return function() {
+        return fn.apply(null, args.concat(slice.apply(arguments)));
+      };
+    }
+    return fn.apply(null, arguments);
+  };
+}
+
+function create(type, props, ...children) {
+  return { type, props, children };
+}
+
+function createElement(node) {
+  if (typeof node === 'string') {
+    doc.createTextNode(node);
   }
+  const $el = doc.createElement(node.type);
+  node.children.map(createElement).forEach($el.appendChild.bind($el));
+  return $el;
+}
+
+function changed(firstNode, secondNode) {
+  return (
+    typeof firstNode !== typeof secondNode ||
+    (typeof firstNode === 'string' && firstNode !== secondNode) ||
+    firstNode.type !== secondNode.type
+  );
+}
+
+function updateElement($parent, newNode, oldNode, index = 0) {
+  if (!oldNode) {
+    $parent.appendChild(createElement(newNode));
+  } else if (!newNode) {
+    $parent.removeChild($parent.childNodes[index]);
+  } else if (changed(newNode, oldNode)) {
+    $parent.replaceChild(createElement(newNode), $parent.childNodes[index]);
+  } else if (newNode.type) {
+    const newLength = newNode.children.length;
+    const oldLength = oldNode.children.length;
+    for (let i = 0; i < newLength || i < oldLength; i++) {
+      updateElement(
+        $parent.childNodes[index],
+        newNode.children[i],
+        oldNode.children[i],
+        i
+      );
+    }
+  }
+}
+
+console.log('create', createElement(create('h1')));
+
+const findElement = element => {
+  return doc.querySelector(`#${element}`) || doc.querySelector(`.${element}`);
 };
 
-(() => {
-  const root = getRoot();
-  const createDiv = createDomElement('div');
-  const createList = createDomElement('ul');
-  const TodoContainer = createDiv('todo-container', createList('todo-list'));
-  console.log('TodoContainer', TodoContainer);
-  root.innerHTML += createDomElement('div', 'test-layout', TodoContainer);
+const appendToDom = curry((parent, child) => {
+  findElement(parent).appendChild(child);
+});
+
+(function() {
+  const root = findElement('root');
 })();
