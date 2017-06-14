@@ -23,7 +23,6 @@ const appendToDom = curry((parent, child) => {
 });
 
 (function() {
-  appendToDom('root', jsxElement`div(class:todo-container)`);
+  appendToDom('root', jsxElement`div(class:todo-container) button`);
+  updateElement(findElement('todo-container'), jsxElement`ul(class:todo-list)`);
 })();
-
-updateElement(findElement('todo-container'), jsxElement`ul(class:todo-list)`);
